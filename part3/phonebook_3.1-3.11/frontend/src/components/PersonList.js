@@ -3,7 +3,7 @@ import DeletePersonButton from "./DeletePersonButton"
 const PersonList = ({ persons, onDeletePerson }) => (
   <div>
     {persons.map((person) => (
-      <p key={person.id}>
+      <p key={(person.id || person._id).toString()}>
         {person.name} {person.number}
         <DeletePersonButton person={person} onDelete={onDeletePerson} />
       </p>

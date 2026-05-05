@@ -25,7 +25,8 @@ const PhoneBook = () => {
         const newPerson = { name: newName, number: newNumber }
         PhoneBookService.create(newPerson)
         .then((returnedPerson) => {
-            setPersons(persons.concat(returnedPerson))
+            const rp = { ...returnedPerson, id: returnedPerson.id || returnedPerson._id }
+            setPersons(persons.concat(rp))
             setNewName('')
             setNewNumber('')
         }).then(() => {
@@ -41,7 +42,8 @@ const PhoneBook = () => {
             const updatedPerson = { ...personFound, number: newNumber }
             PhoneBookService.update(personFound.id, updatedPerson)
                 .then((returnedPerson) => {
-                    setPersons(persons.map((person) => person.id !== returnedPerson.id ? person : returnedPerson))
+                    const rp = { ...returnedPerson, id: returnedPerson.id || returnedPerson._id }
+                    setPersons(persons.map((person) => person.id !== rp.id ? person : rp))
                 })
                 .catch((error) => {
                     setPersons(persons.filter((person) => person.id !== personFound.id))
@@ -83,7 +85,10 @@ const PhoneBook = () => {
     const handleNumberChange = ({ target }) => setNewNumber(target.value)
 
     useEffect(() => {
-        PhoneBookService.getAll().then((initialPersons) => { setPersons(initialPersons) })
+        PhoneBookService.getAll().then((initialPersons) => {
+            const normalized = initialPersons.map(p => ({ ...p, id: p.id || p._id }))
+            setPersons(normalized)
+        })
     }, [])
 
 
