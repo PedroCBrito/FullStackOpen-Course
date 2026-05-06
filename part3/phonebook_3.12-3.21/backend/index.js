@@ -24,9 +24,43 @@ const url =
 mongoose.set('strictQuery', false)
 mongoose.connect(url)
 
+const validatePhoneNumber = (value) => {
+    if (typeof value !== 'string') return false;
+
+    // must have exactly one hyphen (hyphen is mandatory)
+    const hyphenMatches = value.match(/-/g) || [];
+    if (hyphenMatches.length !== 1) return false;
+
+    const parts = value.split('-');
+    if (parts.length !== 2) return false;
+
+    // first part must be 2 or 3 digits, second part must be digits
+    if (!/^\d{2,3}$/.test(parts[0])) return false;
+    if (!/^\d+$/.test(parts[1])) return false;
+
+    // require at least 8 digits total
+    const digitsOnly = value.replace(/[^0-9]/g, '');
+    if (digitsOnly.length < 8) return false;
+
+    return true;
+}
+
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+        minLength: 3,
+        message: props => `Person validation failed: Path 'name' ('${props.value}') is shorter than the minimum allowed length (3).`
+    },
+    number: {
+        type: String,
+        required: true,
+        validate: {
+            validator: validatePhoneNumber,
+            message: props => `${props.value} is not a valid phone number`
+        }
+    },
 })
 
 const Person = mongoose.model('Person', personSchema)
@@ -66,7 +100,7 @@ app.put('/api/persons/:id', (req, res, next) => {
         number: body.number
     };
 
-    Person.findByIdAndUpdate(id, person, { new: true }).then(updatedPerson => {
+    Person.findByIdAndUpdate(id, person, { new: true, runValidators: true, context: 'query' }).then(updatedPerson => {
         res.json(updatedPerson);
     }).catch(error => next(error));
 });
@@ -109,6 +143,9 @@ const errorHandler = (error, request, response, next) => {
     console.error(error.message)
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
+    }
+    if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
     }
     next(error)
 }

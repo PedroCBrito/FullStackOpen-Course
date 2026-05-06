@@ -24,6 +24,7 @@ primary_region = 'gru'
 
 [env]
   PORT = "8080"
+  DATABASEPASSWORD = "xxxxx"
 
 [experimental]
   auto_rollback = true
