@@ -1,19 +1,19 @@
 const mongoose = require('mongoose')
 
 const blogSchema = new mongoose.Schema({
-  title: {
+  username: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
+    minlength: 3
   },
-  author: String,
-  url: {
+  name: String,
+  passwordHash: {
     type: String,
-    required: true
+    required: true,
+    minlength: 3
   },
-  likes: {
-    type: Number,
-    default: 0
-  }
+  blogs: [mongoose.Schema.Types.Mixed]
 })
 
 blogSchema.set('toJSON', {
@@ -24,4 +24,4 @@ blogSchema.set('toJSON', {
   }
 })
 
-module.exports = mongoose.model('Blog', blogSchema)
+module.exports = mongoose.model('User', blogSchema)
