@@ -1,10 +1,11 @@
-import { useAnecdotes, useAnecdoteActions } from "./store"
+import { useAnecdotes, useAnecdoteActions, useFilter } from "./store"
 import anecdoteService from "../services/anecdotes"
 import Filter from "./Filter"
 
 export const AnecdoteList = () => {
     const anecdotes = useAnecdotes()
     const anecdotesActions = useAnecdoteActions()
+    const filter = useFilter()
 
     const vote = async (id, votes) => {
         await anecdoteService.addVote(id, votes)
@@ -25,7 +26,10 @@ export const AnecdoteList = () => {
     return (
         <div>
             <Filter />
-            {anecdotes.sort((a, b) => b.votes - a.votes).map(anecdote => (
+            {anecdotes
+                .filter(anecdote => anecdote.content.toLowerCase().includes(filter.toLowerCase()))
+                .sort((a, b) => b.votes - a.votes)
+                .map(anecdote => (
                 <div key={anecdote.id}>
                     <div>{anecdote.content}</div>
                     <div>

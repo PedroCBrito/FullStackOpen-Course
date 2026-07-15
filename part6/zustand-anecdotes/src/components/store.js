@@ -10,6 +10,7 @@ const asObject = anecdote => ({
 
 const useAnecdoteStore = create((set) => ({
   anecdotes: [],
+  filter: '',
   notification: null,
   actions: {
     initializeAnecdotes: anecdotes => set(() => ({ anecdotes })),
@@ -30,12 +31,7 @@ const useAnecdoteStore = create((set) => ({
       anecdotes: state.anecdotes.filter(anecdote => anecdote.id !== id)
     })),
 
-    filterChange: (filter) => {
-      console.log(filter);
-      return set(state => ({
-        anecdotes: state.anecdotes.filter(anecdote => anecdote.toLowerCase().includes(filter.toLowerCase()))
-      }))
-    },
+    filterChange: (filter) => set(() => ({ filter })),
 
     setNotification: (message, durationSeconds = 5) => {
       set({ notification: message })
@@ -48,3 +44,7 @@ const useAnecdoteStore = create((set) => ({
 export const useAnecdotes = () => useAnecdoteStore((state) => state.anecdotes)
 export const useAnecdoteActions = () => useAnecdoteStore((state) => state.actions)
 export const useNotification = () => useAnecdoteStore((state) => state.notification)
+export const useFilter = () => useAnecdoteStore((state) => state.filter)
+
+// Expose the raw store for testing purposes (non-hook access via getState/setState)
+export { useAnecdoteStore }
